@@ -1,5 +1,3 @@
-package ex1;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -23,7 +21,7 @@ public class Ex1
 	}
 	public static void main(String[] args)
 	{
-		// wooho
+		// wooho!
 		File input_file = new File("C:\\dan\\AI\\HW\\HW1\\input.txt");
 		try
 		{
