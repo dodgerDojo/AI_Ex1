@@ -15,6 +15,7 @@ public class Ex1
 	static class Node
 	{ 
 		public char data; 
+		public int cost;
 		public int timestamp; 
 		public Point point;
 		String direction;
@@ -23,15 +24,35 @@ public class Ex1
 		Node(char data, Point p) 
 		{ 
 			this.data = data;
+			this.cost = dataToCost(this.data);
 			this.timestamp = 0;
 			this.point = p;
 			this.direction = "";
 			this.path = "";
 		}
 		
+		private int dataToCost(int data)
+		{
+			if(data == 'R')
+			{
+				return 1;
+			}
+			else if(data == 'D')
+			{
+				return 3;
+			}
+			else if(data == 'H')
+			{
+				return 10;
+			}
+			
+			return 0;
+		}
+		
 		Node(Node n) 
 		{ 
 			this.data = n.data;
+			this.cost = n.cost;
 			this.timestamp = n.timestamp;
 			this.point = n.point;
 			this.direction = n.direction;
@@ -52,6 +73,16 @@ public class Ex1
 		public void setPath(String path)
 		{
 			this.path = path;
+		}
+
+		public int getCost()
+		{
+			return this.cost;
+		}
+
+		public void setCost(int cost)
+		{
+			this.cost = cost;
 		}
 	}
 	
@@ -245,6 +276,7 @@ public class Ex1
         {
             	System.out.println(temp.getPath());
             	System.out.println("timestamp: " + temp.timestamp);
+            	System.out.println("cost: " + temp.cost);
                 return temp;
         }
         
@@ -267,6 +299,8 @@ public class Ex1
 					current_node.setPath(current_node.direction);
 				}
 				
+				current_node.setCost(temp.getCost() + current_node.getCost());
+				
                 Node recNode = depthLimitedSearch(current_node, depth-1);
                 
                 if(recNode != null)
@@ -283,7 +317,7 @@ public class Ex1
 	{
 		try
 		{
-			Ex1 ex1 = new Ex1("C:\\dan\\AI\\HW\\HW1\\input3.txt");
+			Ex1 ex1 = new Ex1("C:\\dan\\AI\\HW\\HW1\\AI_Ex1\\Input\\in8.txt");
 			
 			for(int i = 0; i < ex1.board.length; i++)
 			{
