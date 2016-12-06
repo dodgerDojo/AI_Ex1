@@ -15,20 +15,43 @@ public class Ex1
 	static class Node
 	{ 
 		public char data; 
-		public boolean visited; 
+		public int timestamp; 
 		public Point point;
+		String direction;
+		String path;
 		
 		Node(char data, Point p) 
 		{ 
-			this.data=data;
-			this.visited=false;
+			this.data = data;
+			this.timestamp = 0;
 			this.point = p;
+			this.direction = "";
+			this.path = "";
+		}
+		
+		Node(Node n) 
+		{ 
+			this.data = n.data;
+			this.timestamp = n.timestamp;
+			this.point = n.point;
+			this.direction = n.direction;
+			this.path = n.path;
 		}
 		
 		@Override
 		public String toString()
 		{
-			return "Data: " + this.data + " visited: " + this.visited + " point: " + this.point.toString() + "\n";
+			return "Direction: " + this.direction + " point: " + this.point.toString() + "\n";
+		}
+
+		public String getPath()
+		{
+			return this.path;
+		}
+
+		public void setPath(String path)
+		{
+			this.path = path;
 		}
 	}
 	
@@ -43,7 +66,7 @@ public class Ex1
 		String[] board_lines = Arrays.copyOfRange(input_lines, 2, this.board_size + 2);
 		
 		System.out.println("alg type:" + this.alg_type);
-		System.out.println("alg type:" + this.board_size);
+		System.out.println("alg size:" + this.board_size);
 		System.out.println("board:\n" + Arrays.toString(board_lines));
 		
 		this.board = new Node[this.board_size][this.board_size];
@@ -57,16 +80,22 @@ public class Ex1
 		}
 	}
 	
-	public List<Node> getNeighbours(Node node)
+	public boolean isTargetNode(Node node)
+	{
+		return (node.point.x == (this.board_size - 1)) && (node.point.y == (this.board_size - 1));
+	}
+	
+	public List<Node> getNeighbours(Node node, int timestamp)
 	{
 		List<Point> all_possible_moves = getAllPossibleMoves();
+		
+		List<String> directions = Arrays.asList("R", "RD", "D", "LD", "L", "LU", "U", "RU");
+		
 		List<Node> neighbours = new ArrayList<Node>();
 		
 		for (int i = 0; i < all_possible_moves.size(); i++) 
 		{
 			Point current_move = all_possible_moves.get(i);
-			
-			System.out.println(current_move);
 			
 			if(!isMoveValid(node.point, current_move))
 			{
@@ -83,7 +112,14 @@ public class Ex1
 			
 //			System.out.println("good!");
 			Point point_after_move = getPointAfterMove(node.point, current_move);
-			neighbours.add(getNodeByPoint(point_after_move));
+			
+			Node corresponding_node = getNodeByPoint(point_after_move);
+			Node cloned_node = new Node(corresponding_node); 
+			
+			cloned_node.timestamp = timestamp;
+			cloned_node.direction = directions.get(i);
+			
+			neighbours.add(cloned_node);
 		}
 		
 		return neighbours;
@@ -118,8 +154,6 @@ public class Ex1
 		{
 			return false;
 		}
-		
-		System.out.println(p);
 		
 		char point_data = getPointType(p);
 		
@@ -159,25 +193,109 @@ public class Ex1
 		return all_moves;
 	}
 
-    public String[] readLines(String filename) throws IOException {
+    public String[] readLines(String filename) throws IOException 
+    {
         FileReader fileReader = new FileReader(filename);
         BufferedReader bufferedReader = new BufferedReader(fileReader);
         List<String> lines = new ArrayList<String>();
         String line = null;
-        while ((line = bufferedReader.readLine()) != null) {
+        while((line = bufferedReader.readLine()) != null) {
         	System.out.println(line);
             lines.add(line);
         }
         bufferedReader.close();
         return lines.toArray(new String[lines.size()]);
     }
-
     
+    public void clearBoard()
+    {
+    	for(int i = 0; i < this.board_size; i++)
+    	{
+    		for(int j = 0; j < this.board_size; j++)
+    		{
+    			this.board[i][j].setPath("");
+    			this.board[i][j].timestamp = 0;
+    		}
+    	}
+    }
+    
+    public int iterativeDeeping()
+    {
+    	for(int max_depth = 0; max_depth < this.board_size * this.board_size; max_depth++)
+    	{
+    		clearBoard();
+    		
+    		if(depthLimitedSearch(this.board[0][0], max_depth) != null)
+    		{
+    			System.out.println("\nGoal Found at depth " + max_depth);
+    			return max_depth;
+    		}
+    		else
+    		{
+    			System.out.println("\nNot Found at depth " + max_depth);    			
+    		}
+    	}
+    	
+    	return 0;
+    }
+    
+    public Node depthLimitedSearch(Node temp, int depth)
+    {	
+        if((depth == 0) && (this.isTargetNode(temp)))
+        {
+            	System.out.println(temp.getPath());
+            	System.out.println("timestamp: " + temp.timestamp);
+                return temp;
+        }
+        
+        if(depth > 0)
+        {
+            List<Node> tempList;
+            
+            tempList = this.getNeighbours(temp, temp.timestamp + 1);
+            
+            for(int i = 0; i < tempList.size(); i++)
+            {
+            	Node current_node = tempList.get(i);
+            	
+				if (temp.getPath() != "")
+				{
+					current_node.setPath(temp.getPath() + "-" + current_node.direction);
+				}
+				else
+				{
+					current_node.setPath(current_node.direction);
+				}
+				
+                Node recNode = depthLimitedSearch(current_node, depth-1);
+                
+                if(recNode != null)
+                {
+                   return recNode;
+                }
+            }
+        }
+        
+        return null;
+    }
+
     public static void main(String[] args)
 	{
 		try
 		{
-			Ex1 ex1 = new Ex1("C:\\dan\\AI\\HW\\HW1\\input.txt");
+			Ex1 ex1 = new Ex1("C:\\dan\\AI\\HW\\HW1\\input3.txt");
+			
+			for(int i = 0; i < ex1.board.length; i++)
+			{
+				for(int j = 0; j < ex1.board.length; j++)
+				{
+					System.out.print(ex1.board[i][j].data + "  ");
+				}
+				
+				System.out.println();
+			}
+			
+			ex1.iterativeDeeping();
 			
 			for(int i = 0; i < ex1.board.length; i++)
 			{
