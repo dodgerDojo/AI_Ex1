@@ -12,80 +12,6 @@ public class Ex1
 	public int board_size;
 	public Node board[][];
 	
-	static class Node
-	{ 
-		public char data; 
-		public int cost;
-		public int timestamp; 
-		public Point point;
-		String direction;
-		String path;
-		
-		Node(char data, Point p) 
-		{ 
-			this.data = data;
-			this.cost = dataToCost(this.data);
-			this.timestamp = 0;
-			this.point = p;
-			this.direction = "";
-			this.path = "";
-		}
-		
-		private int dataToCost(int data)
-		{
-			if(data == 'R')
-			{
-				return 1;
-			}
-			else if(data == 'D')
-			{
-				return 3;
-			}
-			else if(data == 'H')
-			{
-				return 10;
-			}
-			
-			return 0;
-		}
-		
-		Node(Node n) 
-		{ 
-			this.data = n.data;
-			this.cost = n.cost;
-			this.timestamp = n.timestamp;
-			this.point = n.point;
-			this.direction = n.direction;
-			this.path = n.path;
-		}
-		
-		@Override
-		public String toString()
-		{
-			return "Direction: " + this.direction + " point: " + this.point.toString() + "\n";
-		}
-
-		public String getPath()
-		{
-			return this.path;
-		}
-
-		public void setPath(String path)
-		{
-			this.path = path;
-		}
-
-		public int getCost()
-		{
-			return this.cost;
-		}
-
-		public void setCost(int cost)
-		{
-			this.cost = cost;
-		}
-	}
-	
 	public Ex1(String input_file_path) throws IOException
 	{
 		String[] input_lines = readLines(input_file_path);
@@ -130,18 +56,15 @@ public class Ex1
 			
 			if(!isMoveValid(node.point, current_move))
 			{
-//				System.out.println("bad!");
 				continue;
 			}
 			
 			// odd moves are diagonals.
 			if((i % 2 == 1) && !isDiagonalMoveValid(node.point, current_move))
 			{
-//				System.out.println("bad diagonal!");
 				continue;
 			}
 			
-//			System.out.println("good!");
 			Point point_after_move = getPointAfterMove(node.point, current_move);
 			
 			Node corresponding_node = getNodeByPoint(point_after_move);
@@ -258,7 +181,6 @@ public class Ex1
     		
     		if(depthLimitedSearch(this.board[0][0], max_depth) != null)
     		{
-    			System.out.println("\nGoal Found at depth " + max_depth);
     			return max_depth;
     		}
     		else
@@ -267,6 +189,7 @@ public class Ex1
     		}
     	}
     	
+    	System.out.println("no path\n");    		
     	return 0;
     }
     
@@ -274,9 +197,7 @@ public class Ex1
     {	
         if((depth == 0) && (this.isTargetNode(temp)))
         {
-            	System.out.println(temp.getPath());
-            	System.out.println("timestamp: " + temp.timestamp);
-            	System.out.println("cost: " + temp.cost);
+            	System.out.println(temp.getPath() + " " + temp.cost);
                 return temp;
         }
         
@@ -317,7 +238,7 @@ public class Ex1
 	{
 		try
 		{
-			Ex1 ex1 = new Ex1("C:\\dan\\AI\\HW\\HW1\\AI_Ex1\\Input\\in8.txt");
+			Ex1 ex1 = new Ex1("C:\\dan\\AI\\HW\\HW1\\AI_Ex1\\Input\\in9.txt");
 			
 			for(int i = 0; i < ex1.board.length; i++)
 			{
@@ -330,16 +251,6 @@ public class Ex1
 			}
 			
 			ex1.iterativeDeeping();
-			
-			for(int i = 0; i < ex1.board.length; i++)
-			{
-				for(int j = 0; j < ex1.board.length; j++)
-				{
-					System.out.print(ex1.board[i][j].data + "  ");
-				}
-				
-				System.out.println();
-			}
 		}
 		catch (IOException e)
 		{
