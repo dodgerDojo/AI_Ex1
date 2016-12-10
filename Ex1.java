@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.PriorityQueue;
 
 public class Ex1
 {
@@ -75,6 +76,7 @@ public class Ex1
 			
 			cloned_node.timestamp = timestamp;
 			cloned_node.direction = directions.get(i);
+			cloned_node.priority = i;
 			
 			neighbours.add(cloned_node);
 		}
@@ -257,12 +259,74 @@ public class Ex1
         
         return null;
     }
+    
+	public Node runUCS()
+	{
+		
+		// start with the first cell 0,0
+		Node startCell = this.board[0][0];
+		
+		PriorityQueue<Node> boardQueue = new PriorityQueue<Node>(1000, new UcsComparator());
+		
+		boardQueue.add(startCell);
+		
+		// main loop, as long as the tableQueue is not empty:
+		while(!boardQueue.isEmpty())
+		{						
+			// pop the queue
+			Node curCell = boardQueue.poll();
+			
+			System.out.println(curCell.getPath());
+			
+			// if its the finish cell, just return the solution
+			if (isTargetNode(curCell))
+			{
+				System.out.println(curCell.getPath() + " " + curCell.getCost());
+				return curCell; 
+			}
+			
+			// if the length of the path is greater than the board size, continue
+			if(curCell.getPath().split("-").length > this.max_depth)
+			{
+				continue;
+			}
+			
+			List<Node> neighbours = getNeighbours(curCell, curCell.timestamp + 1);
+			
+			int size = neighbours.size();
+			
+			for(int i = 0; i < size; i++)
+			{				
+				Node node = neighbours.get(i);
+
+				if (!curCell.getPath().equals(""))
+				{
+					node.setPath(curCell.getPath() + "-" + node.direction);
+				}
+				
+				else
+				{
+					node.setPath(node.direction);
+				}
+				
+				node.setCost(curCell.getCost() + node.getCost());
+					
+				boardQueue.add(node);
+			}		
+		}
+		
+		// no solution
+		return null;
+	}
 
     public static void main(String[] args)
 	{
 		try
 		{
-			Ex1 ex1 = new Ex1("C:\\dan\\AI\\HW\\HW1\\AI_Ex1\\Input\\in10.txt");
+		    java.util.Date date = new java.util.Date();
+		    System.out.println(date);
+		    
+			Ex1 ex1 = new Ex1("C:\\dan\\AI\\HW\\HW1\\AI_Ex1\\Input\\in.txt");
 			
 			for(int i = 0; i < ex1.board.length; i++)
 			{
@@ -274,9 +338,14 @@ public class Ex1
 				System.out.println();
 			}
 			
-			System.out.println(ex1.board_size);
+			if(null == ex1.runUCS())
+			{
+				System.out.println("no path");
+			}
 			
-			System.out.println(ex1.SolveSearch());
+		    date = new java.util.Date();
+		    System.out.println(date);
+		    
 		}
 		catch (IOException e)
 		{
@@ -284,5 +353,4 @@ public class Ex1
 			e.printStackTrace();
 		}
 	}
-
 }
