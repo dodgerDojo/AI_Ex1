@@ -262,7 +262,7 @@ public class Ex1
 	{
 		try
 		{
-			Ex1 ex1 = new Ex1("C:\\dan\\AI\\HW\\HW1\\AI_Ex1\\Input\\in9.txt");
+			Ex1 ex1 = new Ex1("C:\\dan\\AI\\HW\\HW1\\AI_Ex1\\Input\\in10.txt");
 			
 			for(int i = 0; i < ex1.board.length; i++)
 			{
@@ -276,7 +276,7 @@ public class Ex1
 			
 			System.out.println(ex1.board_size);
 			
-			ex1.SolveSearch();
+			System.out.println(ex1.SolveSearch());
 		}
 		catch (IOException e)
 		{
