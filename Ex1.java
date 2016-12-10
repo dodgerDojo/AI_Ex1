@@ -48,7 +48,7 @@ public class Ex1
 		return (node.point.x == (this.board_size - 1)) && (node.point.y == (this.board_size - 1));
 	}
 	
-	public List<Node> getNeighbours(Node node, int timestamp)
+	public List<Node> getNeighbours(Node node)
 	{	
 		List<String> directions = Arrays.asList("R", "RD", "D", "LD", "L", "LU", "U", "RU");
 		
@@ -74,7 +74,6 @@ public class Ex1
 			Node corresponding_node = getNodeByPoint(point_after_move);
 			Node cloned_node = new Node(corresponding_node); 
 			
-			cloned_node.timestamp = timestamp;
 			cloned_node.direction = directions.get(i);
 			cloned_node.priority = i;
 			
@@ -228,7 +227,7 @@ public class Ex1
         {
             List<Node> tempList;
             
-            tempList = this.getNeighbours(temp, temp.timestamp + 1);
+            tempList = this.getNeighbours(temp);
             
             for(Node current_node : tempList)
             {	
@@ -276,8 +275,6 @@ public class Ex1
 			// pop the queue
 			Node curCell = boardQueue.poll();
 			
-			System.out.println(curCell.getPath());
-			
 			// if its the finish cell, just return the solution
 			if (isTargetNode(curCell))
 			{
@@ -291,7 +288,7 @@ public class Ex1
 				continue;
 			}
 			
-			List<Node> neighbours = getNeighbours(curCell, curCell.timestamp + 1);
+			List<Node> neighbours = getNeighbours(curCell);
 			
 			int size = neighbours.size();
 			

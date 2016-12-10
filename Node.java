@@ -1,14 +1,16 @@
 import java.awt.Point;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class Node
 	{ 
 		public char data; 
 		public int cost;
-		public int timestamp; 
+		public long timestamp; 
 		public Point point;
 		String direction;
 		String path;
 		int priority;
+		final static AtomicLong seq = new AtomicLong();
 		
 		Node(char data, Point p) 
 		{ 
@@ -43,7 +45,7 @@ public class Node
 		{ 
 			this.data = n.data;
 			this.cost = n.cost;
-			this.timestamp = n.timestamp;
+			this.timestamp = seq.getAndIncrement();
 			this.point = n.point;
 			this.direction = n.direction;
 			this.path = n.path;
@@ -76,7 +78,7 @@ public class Node
 			this.cost = cost;
 		}
 
-		public int getTimestamp()
+		public long getTimestamp()
 		{
 			return this.timestamp;
 		}
