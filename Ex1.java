@@ -10,7 +10,9 @@ public class Ex1
 {
 	public String alg_type;
 	public int board_size;
+	public int max_depth;
 	public Node board[][];
+	public List<Point>  all_possible_moves;
 	
 	public Ex1(String input_file_path) throws IOException
 	{
@@ -18,6 +20,9 @@ public class Ex1
 		
 		this.alg_type = input_lines[0];
 		this.board_size = Integer.parseInt(input_lines[1]);
+		this.max_depth = ((this.board_size*this.board_size) / 2) + this.board_size; 
+		this.all_possible_moves = getAllPossibleMoves();
+		System.out.println(this.max_depth);
 		
 		
 		String[] board_lines = Arrays.copyOfRange(input_lines, 2, this.board_size + 2);
@@ -43,16 +48,14 @@ public class Ex1
 	}
 	
 	public List<Node> getNeighbours(Node node, int timestamp)
-	{
-		List<Point> all_possible_moves = getAllPossibleMoves();
-		
+	{	
 		List<String> directions = Arrays.asList("R", "RD", "D", "LD", "L", "LU", "U", "RU");
 		
 		List<Node> neighbours = new ArrayList<Node>();
 		
-		for (int i = 0; i < all_possible_moves.size(); i++) 
+		for (int i = 0; i < this.all_possible_moves.size(); i++) 
 		{
-			Point current_move = all_possible_moves.get(i);
+			Point current_move = this.all_possible_moves.get(i);
 			
 			if(!isMoveValid(node.point, current_move))
 			{
@@ -172,10 +175,10 @@ public class Ex1
     		}
     	}
     }
-    
+    /*
     public int iterativeDeeping()
     {
-    	for(int max_depth = 0; max_depth < this.board_size * this.board_size; max_depth++)
+    	for(int max_depth = 0; max_depth < this.max_depth; max_depth++)
     	{
     		clearBoard();
     		
@@ -192,6 +195,24 @@ public class Ex1
     	System.out.println("no path\n");    		
     	return 0;
     }
+    */
+    
+    public String SolveSearch(){
+        Node result;
+        String path;
+        int i=0;
+        Node begin=this.board[0][0];
+        while(true && i<this.max_depth){
+            result=depthLimitedSearch(begin,i);
+            if(result!=null){
+                path=result.getPath()+" "+Integer.toString(result.getCost());
+                return path;
+            }
+            i++;
+            System.out.println("depth: " + i);
+        }
+        return "no path";
+    }
     
     public Node depthLimitedSearch(Node temp, int depth)
     {	
@@ -207,10 +228,8 @@ public class Ex1
             
             tempList = this.getNeighbours(temp, temp.timestamp + 1);
             
-            for(int i = 0; i < tempList.size(); i++)
-            {
-            	Node current_node = tempList.get(i);
-            	
+            for(Node current_node : tempList)
+            {	
 				if (temp.getPath() != "")
 				{
 					current_node.setPath(temp.getPath() + "-" + current_node.direction);
@@ -218,6 +237,11 @@ public class Ex1
 				else
 				{
 					current_node.setPath(current_node.direction);
+				}
+				
+				if(current_node.getPath().split("-").length > this.max_depth)
+				{
+					continue;
 				}
 				
 				current_node.setCost(temp.getCost() + current_node.getCost());
@@ -250,7 +274,9 @@ public class Ex1
 				System.out.println();
 			}
 			
-			ex1.iterativeDeeping();
+			System.out.println(ex1.board_size);
+			
+			ex1.SolveSearch();
 		}
 		catch (IOException e)
 		{
