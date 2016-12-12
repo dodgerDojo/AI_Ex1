@@ -252,61 +252,68 @@ public class Ex1
     	}
     }
     
+	/*
+	 * Runs IDS algorithm
+	 */
     public String runIDS()
     {
-    	Node result;
-        String path;
-        int i=0;
-        Node begin=this.board[0][0];
-        while(true && i<this.max_depth){
-            result=depthLimitedSearch(begin,i);
-            if(result!=null){
-                path=result.getPath()+" "+Integer.toString(result.getCost());
+        int current_depth = 0;
+    	Node iteration_result;
+
+    	// Keep increasing depth until a solution is found
+        while(true && current_depth < this.max_depth)
+        {
+            iteration_result = limitedDFS(this.board[0][0], current_depth);
+            
+            if(iteration_result != null)
+            {
+                String path = iteration_result.getPath() + " " + Integer.toString(iteration_result.getCost());
                 return path;
             }
-            i++;
-            System.out.println("depth: " + i);
+            
+            current_depth++;
         }
+        
         return "no path";
     }
     
-    public Node depthLimitedSearch(Node temp, int depth)
+	/*
+	 * Runs limited by depth DFS algorithm
+	 */
+    public Node limitedDFS(Node node, int depth)
     {	
-        if((depth == 0) && (this.isTargetNode(temp)))
+        if((this.isTargetNode(node)) && (depth == 0))
         {
-            	System.out.println(temp.getPath() + " " + temp.cost);
-                return temp;
+        	return node;
         }
         
         if(depth > 0)
         {
-            List<Node> tempList;
+            List<Node> neighbours = this.getNeighbours(node);
             
-            tempList = this.getNeighbours(temp);
-            
-            for(Node current_node : tempList)
+            for(Node neighbour : neighbours)
             {	
-				if (temp.getPath() != "")
+				if (node.getPath() != "")
 				{
-					current_node.setPath(temp.getPath() + "-" + current_node.direction);
+					neighbour.setPath(node.getPath() + "-" + neighbour.direction);
 				}
 				else
 				{
-					current_node.setPath(current_node.direction);
+					neighbour.setPath(neighbour.direction);
 				}
 				
-				if(current_node.getPath().split("-").length > this.max_depth)
+				if(neighbour.getPath().split("-").length > this.max_depth)
 				{
 					continue;
 				}
 				
-				current_node.setCost(temp.getCost() + current_node.getCost());
+				neighbour.setCost(node.getCost() + neighbour.getCost());
 				
-                Node recNode = depthLimitedSearch(current_node, depth-1);
+                Node node_from_next_iteration = limitedDFS(neighbour, depth-1);
                 
-                if(recNode != null)
+                if(node_from_next_iteration != null)
                 {
-                   return recNode;
+                   return node_from_next_iteration;
                 }
             }
         }
@@ -314,82 +321,73 @@ public class Ex1
         return null;
     }
     
+	/*
+	 * Runs UCS
+	 */
 	public String runUCS()
 	{
+		// Create a priority queue which sorts according to the exercise rules
+		PriorityQueue<Node> algorithm_queue = new PriorityQueue<Node>(1000, new ExerciseComparator());
 		
-		// start with the first cell 0,0
-		Node startCell = this.board[0][0];
+		algorithm_queue.add(this.board[0][0]);
 		
-		PriorityQueue<Node> boardQueue = new PriorityQueue<Node>(1000, new UcsComparator());
-		
-		boardQueue.add(startCell);
-		
-		// main loop, as long as the tableQueue is not empty:
-		while(!boardQueue.isEmpty())
+		while(!algorithm_queue.isEmpty())
 		{						
-			// pop the queue
-			Node curCell = boardQueue.poll();
+			Node node = algorithm_queue.poll();
 			
-			// if its the finish cell, just return the solution
-			if (isTargetNode(curCell))
+			// If target --> done!
+			if (isTargetNode(node))
 			{
-				String result = curCell.getPath() + " " + curCell.getCost(); 
-				System.out.println(result);
+				String result = node.getPath() + " " + node.getCost(); 
 				return result; 
 			}
 			
-			// if the length of the path is greater than the board size, continue
-			if(curCell.getPath().split("-").length > this.max_depth)
+			// Check that the node's length isn't too big
+			if(node.getPath().split("-").length > this.max_depth)
 			{
 				continue;
 			}
 			
-			List<Node> neighbours = getNeighbours(curCell);
+			// Get all the neighbours
+			List<Node> neighbours = getNeighbours(node);
 			
 			int size = neighbours.size();
 			
 			for(int i = 0; i < size; i++)
 			{				
-				Node node = neighbours.get(i);
+				Node neighbour = neighbours.get(i);
 
-				if (!curCell.getPath().equals(""))
+				// Update the neighbour's path and cost
+				if (!node.getPath().equals(""))
 				{
-					node.setPath(curCell.getPath() + "-" + node.direction);
+					neighbour.setPath(node.getPath() + "-" + neighbour.direction);
 				}
 				
 				else
 				{
-					node.setPath(node.direction);
+					neighbour.setPath(neighbour.direction);
 				}
 				
-				node.setCost(curCell.getCost() + node.getCost());
+				neighbour.setCost(node.getCost() + neighbour.getCost());
 					
-				boardQueue.add(node);
+				algorithm_queue.add(neighbour);
 			}		
 		}
+		
 		return "no path";
 	}
 
+	/*
+	 * Runs the exercise.
+	 */
     public static void main(String[] args)
 	{
 		try
 		{
-			Ex1 ex1 = new Ex1("C:\\dan\\AI\\HW\\HW1\\AI_Ex1\\Input\\in1.txt");
-			
-			for(int i = 0; i < ex1.board.length; i++)
-			{
-				for(int j = 0; j < ex1.board.length; j++)
-				{
-					System.out.print(ex1.board[i][j].data + "  ");
-				}
-				
-				System.out.println();
-			}
-			
+			Ex1 ex1 = new Ex1("input.txt");
 			ex1.run();
-			
-		    
 		}
+		
 		catch (IOException e)
 		{
 			e.printStackTrace();

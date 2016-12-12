@@ -1,8 +1,11 @@
 import java.awt.Point;
 import java.util.concurrent.atomic.AtomicLong;
 
+/*
+ *	Resembles a cell in the game's board.
+ */
 public class Node
-	{ 
+{ 
 		public char data; 
 		public int cost;
 		public long timestamp; 
@@ -23,6 +26,9 @@ public class Node
 			this.priority = 0;
 		}
 		
+		/*
+		 *	Returns each data type's cost according to exercise
+		 */
 		private int dataToCost(int data)
 		{
 			if(data == 'R')
@@ -41,6 +47,10 @@ public class Node
 			return 0;
 		}
 		
+		/*
+		 *	Copy constructor.
+		 *  Each time a node is created, update timestamp.
+		 */
 		Node(Node n) 
 		{ 
 			this.data = n.data;
