@@ -1,6 +1,8 @@
 import java.awt.Point;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,6 +42,18 @@ public class Ex1
 			{
 				this.board[i][j] = new Node(board_lines[i].charAt(j), new Point(i, j));
 			}
+		}
+	}
+	
+	public void run()
+	{
+		if (this.alg_type == "IDS")
+		{
+			this.writeStringToFile(this.SolveSearch(), "output.txt");
+		}
+		else
+		{
+			this.writeStringToFile(this.runUCS(), "output.txt");
 		}
 	}
 	
@@ -165,6 +179,21 @@ public class Ex1
         return lines.toArray(new String[lines.size()]);
     }
     
+    public void writeStringToFile(String str, String file_path)
+    {
+        try {
+            File newTextFile = new File(file_path);
+            FileWriter fw = new FileWriter(newTextFile);
+            fw.write(str);
+            fw.close();
+
+        } catch (IOException iox) {
+            //do stuff with exception
+            iox.printStackTrace();
+        }	
+    }
+
+    
     public void clearBoard()
     {
     	for(int i = 0; i < this.board_size; i++)
@@ -259,7 +288,7 @@ public class Ex1
         return null;
     }
     
-	public Node runUCS()
+	public String runUCS()
 	{
 		
 		// start with the first cell 0,0
@@ -278,8 +307,9 @@ public class Ex1
 			// if its the finish cell, just return the solution
 			if (isTargetNode(curCell))
 			{
-				System.out.println(curCell.getPath() + " " + curCell.getCost());
-				return curCell; 
+				String result = curCell.getPath() + " " + curCell.getCost(); 
+				System.out.println(result);
+				return result; 
 			}
 			
 			// if the length of the path is greater than the board size, continue
@@ -311,19 +341,14 @@ public class Ex1
 				boardQueue.add(node);
 			}		
 		}
-		
-		// no solution
-		return null;
+		return "no path";
 	}
 
     public static void main(String[] args)
 	{
 		try
 		{
-		    java.util.Date date = new java.util.Date();
-		    System.out.println(date);
-		    
-			Ex1 ex1 = new Ex1("C:\\dan\\AI\\HW\\HW1\\AI_Ex1\\Input\\in.txt");
+			Ex1 ex1 = new Ex1("C:\\dan\\AI\\HW\\HW1\\AI_Ex1\\Input\\in1.txt");
 			
 			for(int i = 0; i < ex1.board.length; i++)
 			{
@@ -335,13 +360,8 @@ public class Ex1
 				System.out.println();
 			}
 			
-			if(null == ex1.runUCS())
-			{
-				System.out.println("no path");
-			}
+			ex1.run();
 			
-		    date = new java.util.Date();
-		    System.out.println(date);
 		    
 		}
 		catch (IOException e)
