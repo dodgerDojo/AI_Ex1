@@ -47,8 +47,7 @@ public class Ex1
 	public void run()
 	{
 		// run an algorithm according to input
-		
-		if (this.alg_type == "IDS")
+		if (this.alg_type.equals("IDS"))
 		{
 			this.writeStringToFile(this.runIDS(), "output.txt");
 		}
@@ -210,7 +209,6 @@ public class Ex1
         List<String> lines = new ArrayList<String>();
         String line = null;
         while((line = bufferedReader.readLine()) != null) {
-        	System.out.println(line);
             lines.add(line);
         }
         bufferedReader.close();
