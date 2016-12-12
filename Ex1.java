@@ -19,21 +19,20 @@ public class Ex1
 	
 	public Ex1(String input_file_path) throws IOException
 	{
+		// read the input file
 		String[] input_lines = readLines(input_file_path);
 		
+		// fetch all the data from the input file
 		this.alg_type = input_lines[0];
 		this.board_size = Integer.parseInt(input_lines[1]);
 		this.max_depth = ((this.board_size*this.board_size) / 2) + this.board_size; 
-		this.all_possible_moves = getAllPossibleMoves();
-		System.out.println(this.max_depth);
 		
+		// pre-calculate all the 8 possible directions
+		this.all_possible_moves = getAllPossibleMoves();
 		
 		String[] board_lines = Arrays.copyOfRange(input_lines, 2, this.board_size + 2);
 		
-		System.out.println("alg type:" + this.alg_type);
-		System.out.println("alg size:" + this.board_size);
-		System.out.println("board:\n" + Arrays.toString(board_lines));
-		
+		// initialize the board's nodes
 		this.board = new Node[this.board_size][this.board_size];
 		
 		for(int i = 0; i < this.board.length; i++)
@@ -47,9 +46,11 @@ public class Ex1
 	
 	public void run()
 	{
+		// run an algorithm according to input
+		
 		if (this.alg_type == "IDS")
 		{
-			this.writeStringToFile(this.SolveSearch(), "output.txt");
+			this.writeStringToFile(this.runIDS(), "output.txt");
 		}
 		else
 		{
@@ -59,76 +60,104 @@ public class Ex1
 	
 	public boolean isTargetNode(Node node)
 	{
+		// Target node is the bottom right node
 		return (node.point.x == (this.board_size - 1)) && (node.point.y == (this.board_size - 1));
 	}
 	
+	/*
+	 *	Returns all the possible neighbours of a specific node.
+	 */
 	public List<Node> getNeighbours(Node node)
 	{	
 		List<String> directions = Arrays.asList("R", "RD", "D", "LD", "L", "LU", "U", "RU");
 		
 		List<Node> neighbours = new ArrayList<Node>();
 		
+		// For each direction:
 		for (int i = 0; i < this.all_possible_moves.size(); i++) 
 		{
 			Point current_move = this.all_possible_moves.get(i);
 			
+			// Check if the direction is valid, according to the exercise rules
 			if(!isMoveValid(node.point, current_move))
 			{
 				continue;
 			}
 			
-			// odd moves are diagonals.
+			// Odd moves are diagonals. Diagonals have special rules (according to the exercise rules)
 			if((i % 2 == 1) && !isDiagonalMoveValid(node.point, current_move))
 			{
 				continue;
 			}
 			
+			// Get the point's coordinates after executing the move
 			Point point_after_move = getPointAfterMove(node.point, current_move);
 			
+			// Get a cloned object of the board's corresponding node
 			Node corresponding_node = getNodeByPoint(point_after_move);
 			Node cloned_node = new Node(corresponding_node); 
 			
+			// Update direction and priority (according to the exercise priority definiton)
 			cloned_node.direction = directions.get(i);
 			cloned_node.priority = i;
 			
+			// Add to the returned neighbours list
 			neighbours.add(cloned_node);
 		}
 		
 		return neighbours;
 	}
 	
+	/*
+	 * Returns the board's corresponding node object according to the given coordinates 
+	 */
 	private Node getNodeByPoint(Point p)
 	{
 		return this.board[p.x][p.y];
 	}
 	
+	/*
+	 * Checks if a given point's coordinates are within the board's borders.
+	 */	
 	private static boolean isPointInTable(Point p, int table_size)
 	{
 		return (p.x >= 0) && (p.y >= 0) && (p.x <= table_size - 1) && (p.y <= table_size - 1);
 	}
 	
+	/*
+	 * Returns the board's corresponding type (S/D/W/R/G) according to the given coordinates 
+	 */
 	private char getPointType(Point p)
 	{
 		return getNodeByPoint(p).data;
 	}
 
+	/*
+	 * Returns new coordinates according to a given move (right, right down, down, etc...) 
+	 */
 	private Point getPointAfterMove(Point original_point, Point move)
 	{
 		return new Point(original_point.x + move.x, original_point.y + move.y);
 	}
 	
 	
+	/*
+	 * Returns for a given point whether the given move is valid according to the exercise rules
+	 */
 	private boolean isMoveValid(Point original_point, Point move)
 	{
 		Point p = getPointAfterMove(original_point, move);
 		
+		// Check if the point is within board's limits
 		if(!isPointInTable(p, this.board_size))
 		{
 			return false;
 		}
 		
+		// Get the area type (water, hill, etc...)
 		char point_data = getPointType(p);
 		
+		// According to the exercise, no moves to water are allowed
 		if(point_data == 'W')
 		{
 			return false;
@@ -137,6 +166,9 @@ public class Ex1
 		return true;
 	}
 	
+	/*
+	 * Checks if a diagonal move is valid. According to the rule, you can't execute a diagonal if one of it's directions leads to water
+	 */
 	private boolean isDiagonalMoveValid(Point original_point, Point move)
 	{
 		Point point_after_move_x_only = new Point(original_point.x + move.x, original_point.y);
@@ -148,6 +180,9 @@ public class Ex1
 		return (point_type_x != 'W') && (point_type_y != 'W');
 	}
 	
+	/*
+	 * Returns a constant list of all the possible directions (up, down, etc...)
+	 */
 	private static List<Point> getAllPossibleMoves()
 	{
 		List<Point> all_moves = new ArrayList<Point>();
@@ -165,6 +200,9 @@ public class Ex1
 		return all_moves;
 	}
 
+	/*
+	 * Reads text lines from a file
+	 */
     public String[] readLines(String filename) throws IOException 
     {
         FileReader fileReader = new FileReader(filename);
@@ -179,21 +217,28 @@ public class Ex1
         return lines.toArray(new String[lines.size()]);
     }
     
+	/*
+	 * Writes a string to a file
+	 */
     public void writeStringToFile(String str, String file_path)
     {
-        try {
+        try
+        {
             File newTextFile = new File(file_path);
             FileWriter fw = new FileWriter(newTextFile);
             fw.write(str);
             fw.close();
-
-        } catch (IOException iox) {
-            //do stuff with exception
+        }
+        
+        catch (IOException iox) 
+        {
             iox.printStackTrace();
         }	
     }
 
-    
+	/*
+	 * Clears the board's nodes objects data
+	 */
     public void clearBoard()
     {
     	for(int i = 0; i < this.board_size; i++)
@@ -202,33 +247,14 @@ public class Ex1
     		{
     			this.board[i][j].setPath("");
     			this.board[i][j].timestamp = 0;
+    			this.board[i][j].cost = 0;
     		}
     	}
     }
-    /*
-    public int iterativeDeeping()
-    {
-    	for(int max_depth = 0; max_depth < this.max_depth; max_depth++)
-    	{
-    		clearBoard();
-    		
-    		if(depthLimitedSearch(this.board[0][0], max_depth) != null)
-    		{
-    			return max_depth;
-    		}
-    		else
-    		{
-    			System.out.println("\nNot Found at depth " + max_depth);    			
-    		}
-    	}
-    	
-    	System.out.println("no path\n");    		
-    	return 0;
-    }
-    */
     
-    public String SolveSearch(){
-        Node result;
+    public String runIDS()
+    {
+    	Node result;
         String path;
         int i=0;
         Node begin=this.board[0][0];
@@ -366,7 +392,6 @@ public class Ex1
 		}
 		catch (IOException e)
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
