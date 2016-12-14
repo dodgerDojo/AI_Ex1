@@ -13,8 +13,9 @@ public class Node
 		String direction;
 		String path;
 		int priority;
-		final static AtomicLong seq = new AtomicLong();
+		final static AtomicLong atomic_long = new AtomicLong();
 		
+		// builds node object from scratch
 		Node(char data, Point p) 
 		{ 
 			this.data = data;
@@ -55,7 +56,7 @@ public class Node
 		{ 
 			this.data = n.data;
 			this.cost = n.cost;
-			this.timestamp = seq.getAndIncrement();
+			this.timestamp = atomic_long.getAndIncrement();
 			this.point = n.point;
 			this.direction = n.direction;
 			this.path = n.path;

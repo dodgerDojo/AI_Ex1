@@ -9,6 +9,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.PriorityQueue;
 
+/*
+ * The following class handles the running of the IDS/UCS algorithm over the given input.
+ * After running the IDS/UCS over the given input, the final output is written to a file.
+ */
 public class Ex1
 {
 	public String alg_type;
@@ -17,6 +21,7 @@ public class Ex1
 	public Node board[][];
 	public List<Point>  all_possible_moves;
 	
+	// Initialize the game data	 
 	public Ex1(String input_file_path) throws IOException
 	{
 		// read the input file
@@ -44,9 +49,9 @@ public class Ex1
 		}
 	}
 	
+	// run an algorithm according to input
 	public void run()
 	{
-		// run an algorithm according to input
 		if (this.alg_type.equals("IDS"))
 		{
 			this.writeStringToFile(this.runIDS(), "output.txt");
@@ -57,9 +62,9 @@ public class Ex1
 		}
 	}
 	
+	// returns true/false if the given node is the target one (bottom right)
 	public boolean isTargetNode(Node node)
 	{
-		// Target node is the bottom right node
 		return (node.point.x == (this.board_size - 1)) && (node.point.y == (this.board_size - 1));
 	}
 	
